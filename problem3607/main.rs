@@ -28,7 +28,7 @@ impl $name
 
         let mut groups : Vec<BinaryHeap<Reverse<$typename>>> = vec![BinaryHeap::new(); c];
         let mut group_ids : Vec<usize> = (0..c).collect();
-        let mut group_sizes: Vec<usize> = vec![1; c];
+        let mut group_sizes: Vec<i16> = vec![1; c];
 
         for con in connections {
             let mut root0 = Self::find_station_group(&mut group_ids, con[0] as $typename);
@@ -39,6 +39,8 @@ impl $name
                 }
                 group_ids[root1] = root0;
                 group_sizes[root0] += group_sizes[root1];
+                groups[root1].clear();
+                groups[root1].shrink_to_fit();
             }
         }
 
@@ -61,11 +63,11 @@ impl $name
             println!();
         }*/
         
-        let mut solutions:Vec<i32> = Vec::with_capacity(queries.len() / 2);
-        let mut down:Vec<bool> = vec![false; c];
+        let mut solutions:Vec<i32> = Vec::with_capacity(queries.len() / 4);
+        let mut down:Vec<u8> = vec![0; c/8+1];
         for query in queries {
             if query[0] == 1 {
-                if down[query[1] as usize] {
+                if Self::is_down(&down, query[1] as usize) {
                     let root = Self::find_station_group(&mut group_ids, query[1] as $typename);
                     let stations = &mut groups[root];
 
@@ -75,7 +77,7 @@ impl $name
                             break;
                         }
                         let item = stations.peek().expect("...").0;
-                        if !down[item as usize] {
+                        if !Self::is_down(&down, item as usize) {
                             solutions.push(item as i32);
                             break;
                         }
@@ -87,12 +89,20 @@ impl $name
                     solutions.push(query[1]);
                 }
             } else if query[0] == 2 {
-                down[query[1] as usize] = true;
+                Self::set_down(&mut down, query[1] as usize);
             }
 
         }
 
         return solutions;
+    }
+
+    fn is_down(down:&Vec<u8>, id: usize) -> bool {
+        down[id>>3] & (1<<(id%8)) > 0
+    }
+
+    fn set_down(down:&mut Vec<u8>, id: usize){
+        down[id>>3] = down[id>>3] | 1<<(id%8);
     }
 
 }
@@ -128,6 +138,7 @@ fn main() {
     for sol in sols {
         println!("{:?}", sol);
     }
+    println!("---");
 
     let c = 3;
     let connections = vec![];
@@ -137,6 +148,7 @@ fn main() {
     for sol in sols {
         println!("{:?}", sol);
     }
+    println!("---");
     
     let c = 3;
     let connections = vec![vec![3,2],vec![1,3],vec![2,1]];
@@ -146,6 +158,17 @@ fn main() {
     for sol in sols {
         println!("{:?}", sol);
     }
+    println!("---");
+
+    let c = 5;
+    let connections = vec![vec![1,2],vec![3,4],vec![1,5],vec![4,5],vec![1,3]];
+    let queries = vec![vec![2,4],vec![2,1],vec![2,4],vec![1,1],vec![2,1],vec![1,2],vec![1,2],vec![1,5],vec![2,4],vec![2,2],vec![2,5],vec![1,4],vec![2,2],vec![2,5],vec![1,2],vec![2,3],vec![2,1],vec![1,5],vec![2,1],vec![2,4],vec![2,5],vec![2,4],vec![1,2],vec![1,4],vec![2,3],vec![2,4],vec![2,5],vec![1,1],vec![1,4],vec![2,3],vec![1,1],vec![1,2],vec![1,2],vec![1,3],vec![1,2],vec![2,5],vec![1,2],vec![1,5],vec![1,5],vec![2,5],vec![2,3],vec![1,1],vec![2,4],vec![1,2],vec![2,1],vec![1,3],vec![2,3]];
+    let sols = Solution::process_queries(c, connections, queries);
+
+    for sol in sols {
+        println!("{:?}", sol);
+    }
+    println!("---");
 
     for _ in 0..200 {
         let c = 10000;
