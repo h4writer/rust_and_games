@@ -2,6 +2,7 @@ struct Solution {
 
 }
 use std::collections::HashSet;
+use std::collections::HashMap;
 
 impl Solution {
     pub fn combine(a: u8, b: u8) -> u16 {
@@ -15,24 +16,29 @@ impl Solution {
             return 0;
         }
 
-        let mut count = 0;
         let mut counted = HashSet::<u16>::new();
 
-        for i in 0..s.len()-2 {
-            for j in i+1..s.len()-1 {
-                if counted.contains(&Solution::combine(s[i], s[j])) {
-                    continue;
-                }
+        // Compute first and last occurences of a character.
+        let mut all_first = HashMap::<u8, usize>::new();
+        let mut all_last = HashMap::<u8, usize>::new();
 
-                for k in j+1..s.len() {
-                    if s[i] == s[k] {
-                        counted.insert(Solution::combine(s[i],s[j]));
-                        break;
-                    }
-                }
+        for i in 0..s.len() {
+            if !all_first.contains_key(&s[i]) {
+                all_first.insert(s[i], i);
+            }
+
+            all_last.insert(s[i], i);
+        }
+
+        
+        for (c, start) in all_first.iter() {
+            let end = all_last[c];
+
+            for i in start+1..end {
+                counted.insert(Solution::combine(*c,s[i]));
             }
         }
-         
+
         return counted.len() as i32;
     }
 }
