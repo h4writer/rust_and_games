@@ -1,7 +1,57 @@
 
 fn solve(input: &[i32]) -> i32 {
-    let mut current = Vec::with_capacity(input.len());
-    return solve_recursive(&input, &mut current);
+    //let mut current = Vec::with_capacity(input.len());
+    //return solve_recursive(&input, &mut current);
+
+    return solve_second(&input);
+}
+
+struct Data {
+    next: usize, // not used
+    value: i32,
+    length: i32
+}
+
+fn solve_second(input: &[i32]) -> i32 {
+    if input.is_empty() {
+        return 0; 
+    }
+
+    let mut list = Vec::<Data>::with_capacity(input.len()); // TODO: tree
+    for i in input {
+
+        let mut best_id = input.len();
+        let mut best_length = 0;
+        for k in 0..list.len() {
+            if *i > list[k].value && best_length < list[k].length {
+                best_length = list[k].length;
+                best_id = k;
+            }
+        }
+
+        if best_id == input.len() {
+            list.push(Data {
+                next: input.len(),
+                value: *i,
+                length: 1
+            });
+        } else {
+            list.push(Data {
+                next: best_id,
+                value: *i,
+                length: list[best_id].length+1
+            });
+        }
+    }
+
+    let mut best_length = 0;
+    for k in 0..list.len() {
+        if best_length < list[k].length {
+            best_length = list[k].length;
+        }
+    }
+
+    return best_length;
 }
 
 fn solve_recursive(input: &[i32], current: &mut Vec<i32>) -> i32 {
