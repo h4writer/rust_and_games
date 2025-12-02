@@ -1,10 +1,62 @@
 use std::cmp;
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 struct Solution {
 
 }
 
 impl Solution {
+
+    pub fn merge_or_split(n: i32, vec_edges: &Vec<Vec<i32>>, values: &Vec<i32>, k: i32) -> i32 {
+        let mut values = values.clone();
+
+        let mut edges = HashMap::<usize, HashSet<usize>>::new(); 
+        for edge in vec_edges {
+            let edge = vec![edge[0] as usize, edge[1] as usize];
+            edges.entry(edge[0]).or_insert(HashSet::new()).insert(edge[1]);
+            edges.entry(edge[1]).or_insert(HashSet::new()).insert(edge[0]);
+        }
+
+        let mut no_splits = 1;
+
+        let mut leafs = Vec::<usize>::new();
+        for (from, conns) in &edges {
+            if conns.len() == 1 {
+                leafs.push(*from);
+            }
+        };
+
+
+        while let Some(from) = leafs.pop() {
+            //println!("{:?} - {} -> {:#?}", leafs, from, edges);
+            let conns : HashSet<usize> = edges.remove(&from).unwrap();
+            if conns.is_empty() {
+                assert!(values[from] % k == 0);
+                continue;
+            }
+            let to : usize = *conns.iter().next().unwrap();
+
+            if values[from] % k == 0 {
+                // Split
+                no_splits += 1;
+                //println!("split {}->{}", from, to);
+            } else {
+                // Merge
+                values[to] = (values[to] + values[from]) % k;
+                //println!("merge {}->{}", from, to);
+            }
+
+            let conns_to = edges.get_mut(&to).unwrap();
+            conns_to.remove(&from);
+            if conns_to.len() == 1 {
+                leafs.push(to);
+            }
+        }
+
+        return no_splits
+    }
+
 
     pub fn bruteforce_inner(solution: &mut Vec<i32>, edges: &[Vec<i32>], values: &Vec<i32>, k: i32) -> i32 {
         // O(2^edges * n^2)
@@ -76,7 +128,7 @@ impl Solution {
     }
 
     pub fn max_k_divisible_components(n: i32, edges: Vec<Vec<i32>>, values: Vec<i32>, k: i32) -> i32 {
-        return Solution::bruteforce(n, &edges, &values, k);
+        return Solution::merge_or_split(n, &edges, &values, k);
     }
 }
 
