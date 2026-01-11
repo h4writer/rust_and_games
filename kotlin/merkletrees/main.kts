@@ -51,12 +51,12 @@ fun printMerkle(node: Node, before:String) {
 
 fun createMerkleProof(root: Root, id: Int, depth: Int) {
     // 5/2 = 2
-    if (id < ) {
+    /*if (id < ) {
              1
          1       2
        1   2   3   X
       1 2 3 4 5 X X X
-    }
+    }*/
 }
 
 val data = arrayOf("test","test2", "test3", "test4", "test5");
@@ -64,5 +64,5 @@ var root = createMerkle(data);
 
 printMerkle(root);
 
-createMerkleProof(root, 2);
+//createMerkleProof(root, 2);
 //val n = Node( null, null);
