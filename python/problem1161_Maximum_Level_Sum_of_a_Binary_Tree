@@ -1,0 +1,34 @@
+
+# Definition for a binary tree node.
+class TreeNode(object):
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class Solution(object):
+
+    def iter(self, node, depth):
+        if depth >= len(self.levels):
+            self.levels.append(0)
+
+        self.levels[depth] += node.val
+        if node.left:
+            self.iter(node.left, depth+1)
+        if node.right:
+            self.iter(node.right, depth+1)
+
+
+    def maxLevelSum(self, root):
+
+        self.levels = []
+        self.iter(root, 0)
+
+        max_level = 0
+        for i in range(len(self.levels)):
+            if self.levels[i] > max_level:
+                max_level = i
+        return max_level+1
+
+
+
